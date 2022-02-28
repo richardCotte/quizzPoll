@@ -35,6 +35,7 @@ while ($row = $pollsQuery->fetchObject()) {
     <?php else : ?>
         <p>Désolé, pas de questions disponibles pour le moment</p>
     <?php endif; ?>
+    
 
     <button onclick="window.location.href='https://calendly.com/d/ddn2-zzpj/ipi-lyon-rdv-conseil'">Nous Contacter</button>
 </body>
