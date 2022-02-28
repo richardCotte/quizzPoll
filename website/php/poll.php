@@ -22,22 +22,44 @@ if (!isset($_GET['poll'])) {
 
     $poll = $pollQuery->fetchObject();
 
-    // Get poll choices
-    $choicesQuery = $db->prepare("
-        SELECT polls.id, polls_choices.id AS choice_id, polls_choices.name
-        FROM polls
+    // Get the user answer for this poll
+    $answerQuery = $db->prepare("
+        SELECT polls_choices.id AS choice_id, polls_choices.name AS choice_name
+        FROM polls_answers
         JOIN polls_choices
-        ON polls.id = polls_choices.poll
-        WHERE polls.id = :poll
+        ON polls_answers.choice = polls_choices.id
+        WHERE polls_answers.user = :user
+        AND polls_answers.poll = :poll
     ");
 
-    $choicesQuery->execute([
+    $answerQuery->execute([
+        'user' => $_SESSION['user_id'],
         'poll' => $id
     ]);
 
-    //Extract choices
-    while($row = $choicesQuery->fetchObject()) {
-        $choices[] = $row;
+    //Has the user completed the poll ?
+    $completed = $answerQuery->rowCount() ? true : false;
+
+    if($completed) {
+        // Get all answers
+    } else {
+        // Get poll choices
+        $choicesQuery = $db->prepare("
+            SELECT polls.id, polls_choices.id AS choice_id, polls_choices.name
+            FROM polls
+            JOIN polls_choices
+            ON polls.id = polls_choices.poll
+            WHERE polls.id = :poll
+        ");
+
+        $choicesQuery->execute([
+            'poll' => $id
+        ]);
+
+        //Extract choices
+        while($row = $choicesQuery->fetchObject()) {
+            $choices[] = $row;
+        }
     }
 }
 
@@ -65,24 +87,28 @@ if (!isset($_GET['poll'])) {
                 <?php echo $poll->question; ?>
             </div>
 
-            <?php if(!empty($choices)): ?>
-            <form action="vote.php" method="post">
-                <div class="poll-options">
-
-                    <?php foreach($choices as $index => $choice): ?>
-                        <div class="poll-option">
-                            <input type="radio" name="choice" value="<?php echo $choice->choice_id ?>" id="c<?php echo $index; ?>">
-                            <label for="c<?php echo $index; ?>"><?php echo $choice->name; ?></label>
-                        </div>
-                    <?php endforeach; ?>
-
-                </div>
-
-                <input type="submit" value="Envoyer la réponse">
-                <input type="hidden" name="poll" value="<?php echo $id; ?>">
-            </form>
+            <?php if($completed): ?>
+                <P>Tu a déjà répondu à cette question, merci.</P>
             <?php else: ?>
-                <p>Il n'y a pas de choix pour l'instant.</p>
+                <?php if(!empty($choices)): ?>
+                <form action="vote.php" method="post">
+                    <div class="poll-options">
+
+                        <?php foreach($choices as $index => $choice): ?>
+                            <div class="poll-option">
+                                <input type="radio" name="choice" value="<?php echo $choice->choice_id ?>" id="c<?php echo $index; ?>">
+                                <label for="c<?php echo $index; ?>"><?php echo $choice->name; ?></label>
+                            </div>
+                        <?php endforeach; ?>
+
+                    </div>
+
+                    <input type="submit" value="Envoyer la réponse">
+                    <input type="hidden" name="poll" value="<?php echo $id; ?>">
+                </form>
+                <?php else: ?>
+                    <p>Il n'y a pas de choix pour l'instant.</p>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
 
