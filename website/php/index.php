@@ -1,15 +1,15 @@
 <?php
 
-require_once 'app/init.php';
+// require_once 'app/init.php';
 
-$pollsQuery = $db->query("
-    SELECT id, question
-    FROM polls
-");
+// $pollsQuery = $db->query("
+//     SELECT id, question
+//     FROM polls
+// ");
 
-while ($row = $pollsQuery->fetchObject()) {
-    $polls[] = $row;
-}
+// while ($row = $pollsQuery->fetchObject()) {
+//     $polls[] = $row;
+// }
 
 ?>
 
@@ -26,18 +26,18 @@ while ($row = $pollsQuery->fetchObject()) {
 </head>
 
 <body>
-    <?php if (!empty($polls)) : ?>
-        <ul>
-            <?php foreach ($polls as $poll) : ?>
-                <li><a href="poll.php?poll=<?php echo $poll->id; ?>"><?php echo $poll->question; ?></a></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php else : ?>
-        <p>Désolé, pas de questions disponibles pour le moment</p>
-    <?php endif; ?>
-    
+    <form name='registration' action='process.php' method='POST'>
+    <label for 'Nom'>Nom: </label>
+    <input type="text" name="Nom" />
 
-    <button onclick="window.location.href='https://calendly.com/d/ddn2-zzpj/ipi-lyon-rdv-conseil'">Nous Contacter</button>
+    <label for 'Prenom'>Prenom: </label>
+    <input type="text" name="Prenom" />
+
+    <label for 'Email'>Email: </label>
+    <input type="number" name="Email" />
+
+    <button type="submit">Submit</button>
+    </form>
 </body>
 
 </html>

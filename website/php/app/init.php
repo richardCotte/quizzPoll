@@ -2,8 +2,6 @@
 
 session_start();
 
-$_SESSION['user_id'] = 1;
-
 $db_username = 'root';
 $db_password = '';
 
